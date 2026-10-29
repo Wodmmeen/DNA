@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест конструктора составных блоков</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .header {
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: #1a1a2e;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #8b5cf6;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        
+        button:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+        
+        button.danger {
+            background: #ef4444;
+        }
+        
+        button.danger:hover {
+            background: #dc2626;
+        }
+        
+        .info {
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .info span {
+            color: #8b5cf6;
+        }
+        
+        /* Контейнер для конструктора */
+        .constructor-container {
+            background: #12121a;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        /* Стили для модалки конструктора */
+        .ve-modal {
+            position: relative;
+            display: block !important;
+            background: #12121a;
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+        }
+        
+        .fullscreen-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ve-modal-header {
+            padding: 16px 20px;
+            background: #1a1a2e;
+            border-bottom: 1px solid #2a2a3e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .fullscreen-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .composite-left-panel {
+            width: 280px;
+            background: #1a1a2e;
+            border-right: 1px solid #2a2a3e;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .composite-tabs {
+            display: flex;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        
+        .composite-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.2s;
+        }
+        
+        .composite-tab:hover {
+            background: #2a2a3e;
+            color: #fff;
+        }
+        
+        .composite-tab.active {
+            color: #8b5cf6;
+            border-bottom: 2px solid #8b5cf6;
+        }
+        
+        .composite-tab-content {
+            display: none;
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .composite-tab-content.active {
+            display: block;
+        }
+        
+        .composite-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            margin: 16px 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .composite-shapes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .shape-btn {
+            background: #2a2a3e;
+            border: 1px solid #3a3a4e;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #e2e8f0;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .shape-btn:hover {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+        }
+        
+        .ve-btn-primary {
+            background: #8b5cf6;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
+        
+        .ve-btn-primary:hover {
+            background: #7c3aed;
+        }
+        
+        .composite-layers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #2a2a3e;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .layer-item:hover {
+            background: #3a3a4e;
+        }
+        
+        .layer-item.selected {
+            background: #8b5cf6;
+        }
+        
+        .delete-layer {
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        
+        .composite-canvas-area {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background: #1e1e2e;
+        }
+        
+        .composite-canvas-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
+        }
+        
+        #compositeCanvas {
+            position: relative;
+            background: #1e1e2e;
+            min-width: 1200px;
+            min-height: 800px;
+            transform-origin: 0 0;
+            margin: 0;
+        }
+        
+        .composite-block {
+            position: absolute;
+            cursor: move;
+            border: 2px solid transparent;
+            transition: outline 0.1s;
+        }
+        
+        .composite-block:hover {
+            border-color: #8b5cf6;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #8b5cf6;
+            border: 1px solid white;
+            border-radius: 50%;
+            z-index: 100;
+            cursor: pointer;
+        }
+        
+        .resize-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+        .resize-handle.n { top: -4px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+        .resize-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+        .resize-handle.e { top: 50%; right: -4px; transform: translateY(-50%); cursor: e-resize; }
+        .resize-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+        .resize-handle.s { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+        .resize-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+        .resize-handle.w { top: 50%; left: -4px; transform: translateY(-50%); cursor: w-resize; }
+        
+        .composite-properties {
+            padding: 16px;
+            width: 280px;
+            background: #1a1a2e;
+            border-left: 1px solid #2a2a3e;
+            overflow-y: auto;
+        }
+        
+        .prop-group {
+            margin-bottom: 12px;
+        }
+        
+        .prop-group label {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 4px;
+            color: #94a3b8;
+        }
+        
+        .prop-group input {
+            width: 100%;
+            padding: 6px 8px;
+            background: #1e1e2e;
+            border: 1px solid #2a2a3e;
+            border-radius: 6px;
+            color: #e2e8f0;
+        }
+        
+        .ve-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #2a2a3e;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: #ef4444;
+        }
+        
+        .composite-tools {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+            margin-right: 20px;
+        }
+        
+        .composite-tools .ve-btn {
+            background: #2a2a3e;
+            border: none;
+            color: #94a3b8;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .composite-tools .ve-btn:hover {
+            background: #3a3a4e;
+            color: #fff;
+        }
+        
+        .auto-save-indicator {
+            background: #2a2a3e;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧩 Тест конструктора составных блоков</h1>
+        <div class="test-buttons">
+            <button id="testOpenBtn">🔓 Открыть конструктор</button>
+            <button id="testAddSquareBtn">🟪 Добавить квадрат</button>
+            <button id="testAddTextBtn">📝 Добавить текст</button>
+            <button id="testAddImageBtn">🖼️ Добавить картинку</button>
+            <button id="testClearBtn" class="danger">🗑️ Очистить всё</button>
+        </div>
+    </div>
+    <div class="info">
+        📊 Статус: <span id="status">Ожидание...</span> | 
+        Блоков: <span id="blockCount">0</span> | 
+        Выделено: <span id="selectedInfo">нет</span>
+    </div>
+    <div class="constructor-container">
+        <div id="compositeModal" class="ve-modal">
+            <div class="fullscreen-content">
+                <div class="ve-modal-header">
+                    <h3><i class="fas fa-puzzle-piece"></i> Конструктор составных блоков</h3>
+                    <div class="composite-tools">
+                        <button id="compositeGridToggle" class="ve-btn" title="Сетка"><i class="fas fa-th"></i></button>
+                        <button id="compositeZoomIn" class="ve-btn" title="Приблизить"><i class="fas fa-search-plus"></i></button>
+                        <button id="compositeZoomOut" class="ve-btn" title="Отдалить"><i class="fas fa-search-minus"></i></button>
+                        <button id="compositeZoomReset" class="ve-btn" title="Сбросить"><i class="fas fa-expand"></i></button>
+                        <span id="compositeZoomLevel" class="auto-save-indicator">100%</span>
+                    </div>
+                    <button class="close-modal" id="closeCompositeModalBtn">&times;</button>
+                </div>
+                <div class="fullscreen-body">
+                    <div class="composite-left-panel">
+                        <div class="composite-tabs">
+                            <div class="composite-tab active" data-tab="add">➕ Добавить</div>
+                            <div class="composite-tab" data-tab="layers">📋 Слои</div>
+                            <div class="composite-tab" data-tab="properties">⚙️ Свойства</div>
+                        </div>
+                        <div class="composite-tab-content active" data-tab="add">
+                            <div class="composite-section-title">Фигуры</div>
+                            <div class="composite-shapes-grid" id="compositeShapesGrid">
+                                <button data-shape="square" class="shape-btn"><i class="fas fa-square"></i> Квадрат</button>
+                                <button data-shape="circle" class="shape-btn"><i class="fas fa-circle"></i> Круг</button>
+                                <button data-shape="triangle" class="shape-btn"><i class="fas fa-play"></i> Треугольник</button>
+                                <button data-shape="diamond" class="shape-btn"><i class="fas fa-gem"></i> Ромб</button>
+                                <button data-shape="star" class="shape-btn"><i class="fas fa-star"></i> Звезда</button>
+                            </div>
+                            <div class="composite-section-title">Элементы</div>
+                            <button id="compositeAddTextBtn" class="ve-btn-primary"><i class="fas fa-font"></i> Текст</button>
+                            <button id="compositeAddImageBtn" class="ve-btn-primary" style="margin-top:8px;"><i class="fas fa-image"></i> Изображение</button>
+                        </div>
+                        <div class="composite-tab-content" data-tab="layers">
+                            <div id="compositeLayersList" class="composite-layers-list"><div style="color:#64748b; text-align:center; padding:20px;">Нет элементов</div></div>
+                        </div>
+                        <div class="composite-tab-content" data-tab="properties">
+                            <div id="compositePropertiesPanel" class="composite-properties"><div style="color:#64748b; text-align:center; padding:20px;">Выберите элемент</div></div>
+                        </div>
+                    </div>
+                    <div class="composite-canvas-area">
+                        <div class="composite-canvas-wrapper" id="compositeCanvasWrapper">
+                            <div id="compositeCanvas" class="ve-canvas"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ve-modal-footer">
+                    <button class="ve-btn" id="cancelCompositeBtn">Отмена</button>
+                    <button class="ve-btn ve-btn-primary" id="saveCompositeBtn">💾 Сохранить как шаблон</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ПОЛНОСТЬЮ РАБОЧИЙ КОНСТРУКТОР ==========
+        (function() {
+            // DOM элементы
+            let modal = document.getElementById('compositeModal');
+            let canvas = document.getElementById('compositeCanvas');
+            let layersList = document.getElementById('compositeLayersList');
+            let propsPanel = document.getElementById('compositePropertiesPanel');
+            let wrapper = document.getElementById('compositeCanvasWrapper');
+            let zoomSpan = document.getElementById('compositeZoomLevel');
+            
+            // Состояние
+            let blocks = [];
+            let selectedId = null;
+            let zoom = 1;
+            let showGrid = true;
+            
+            // Drag state
+            let dragActive = false;
+            let dragBlockId = null;
+            let dragStartX = 0, dragStartY = 0;
+            let dragStartLeft = 0, dragStartTop = 0;
+            
+            // Resize state
+            let resizeActive = false;
+            let resizeBlockId = null;
+            let resizeCorner = null;
+            let resizeStartX = 0, resizeStartY = 0;
+            let resizeStartWidth = 0, resizeStartHeight = 0;
+            let resizeStartLeft = 0, resizeStartTop = 0;
+            let resizeShift = false;
+            
+            // Вспомогательные
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+            }
+            
+            function updateStatus() {
+                document.getElementById('status').innerText = blocks.length + ' блоков на холсте';
+                document.getElementById('blockCount').innerText = blocks.length;
+                document.getElementById('selectedInfo').innerText = selectedId ? selectedId.substr(0,8) : 'нет';
+            }
+            
+            // Генерация ID
+            function genId(prefix) {
+                return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            }
+            
+            // Добавление блоков
+            function addShape(shapeType) {
+                const id = genId('shape');
+                blocks.push({
+                    id: id,
+                    type: 'shape',
+                    shape: shapeType,
+                    content: { color: '#8b5cf6' },
+                    styles: { left: 300, top: 200, width: 80, height: 80, rotate: 0 }
+                });
+                afterAdd(id);
+            }
+            
+            function addText() {
+                const id = genId('text');
+                blocks.push({
+                    id: id,
+                    type: 'text',
+                    content: { text: 'Новый текст' },
+                    styles: { left: 300, top: 200, width: 120, height: 40, fontSize: 14, color: '#ffffff', textAlign: 'center', rotate: 0 }
+                });
+                afterAdd(id);
+            }
+            
+            function addImage() {
+                const id = genId('image');
+                blocks.push({
+                    id: id,
+                    type: 'image',
+                    content: { url: 'https://picsum.photos/100/100?random=' + Date.now() },
+                    styles: { left: 300, top: 200, width: 80, height: 80, rotate: 0 }
+                });
+                afterAdd(id);
+            }
+            
+            function afterAdd(id) {
+                render();
+                selectedId = id;
+                updateLayers();
+                updateProps();
+                updateStatus();
+                console.log('Добавлен блок, всего:', blocks.length);
+            }
+            
+            function clearAll() {
+                if (confirm('Очистить всё?')) {
+                    blocks = [];
+                    selectedId = null;
+                    render();
+                    updateLayers();
+                    updateProps();
+                    updateStatus();
+                    console.log('Холст очищен');
+                }
+            }
+            
+            // Рендеринг
+            function render() {
+                if (!canvas) return;
+                
+                let html = '';
+                for (let i = 0; i < blocks.length; i++) {
+                    const b = blocks[i];
+                    const s = b.styles;
+                    const isSelected = (selectedId === b.id);
+                    let inner = '';
+                    
+                    if (b.type === 'shape') {
+                        let shapeStyle = '';
+                        switch(b.shape) {
+                            case 'circle': shapeStyle = 'border-radius:50%;'; break;
+                            case 'triangle': shapeStyle = 'clip-path: polygon(50% 0%, 0% 100%, 100% 100%);'; break;
+                            case 'diamond': shapeStyle = 'clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);'; break;
+                            case 'star': shapeStyle = 'clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);'; break;
+                            default: shapeStyle = 'border-radius:8px;';
+                        }
+                        inner = `<div style="width:100%; height:100%; background:${b.content.color}; ${shapeStyle}"></div>`;
+                    } else if (b.type === 'text') {
+                        inner = `<div contenteditable="true" class="editable-text" style="width:100%; height:100%; display:flex; align-items:center; justify-content:${s.textAlign || 'center'}; font-size:${s.fontSize}px; color:${s.color};">${escapeHtml(b.content.text)}</div>`;
+                    } else if (b.type === 'image') {
+                        inner = `<img src="${escapeHtml(b.content.url)}" style="width:100%; height:100%; object-fit:cover;">`;
+                    }
+                    
+                    const outline = isSelected ? '2px solid #8b5cf6' : 'none';
+                    html += `<div class="composite-block" data-id="${b.id}" style="position:absolute; left:${s.left}px; top:${s.top}px; width:${s.width}px; height:${s.height}px; transform:rotate(${s.rotate}deg); outline:${outline}; cursor:move;">
+                                ${inner}
+                                ${isSelected ? `
+                                    <div class="resize-handle nw"></div>
+                                    <div class="resize-handle n"></div>
+                                    <div class="resize-handle ne"></div>
+                                    <div class="resize-handle e"></div>
+                                    <div class="resize-handle se"></div>
+                                    <div class="resize-handle s"></div>
+                                    <div class="resize-handle sw"></div>
+                                    <div class="resize-handle w"></div>
+                                ` : ''}
+                            </div>`;
+                }
+                canvas.innerHTML = html;
+                attachEvents();
+                if (showGrid) applyGrid();
+                
+                console.log('Рендер завершён, блоков:', blocks.length);
+            }
+            
+            function attachEvents() {
+                // Клик по блоку
+                document.querySelectorAll('.composite-block').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const id = el.dataset.id;
+                        selectedId = id;
+                        render();
+                        updateLayers();
+                        updateProps();
+                        updateStatus();
+                    });
+                    
+                    el.addEventListener('mousedown', onBlockMouseDown);
+                });
+                
+                // Редактирование текста
+                document.querySelectorAll('.editable-text').forEach(el => {
+                    el.addEventListener('blur', (e) => {
+                        const parent = e.target.closest('.composite-block');
+                        if (parent) {
+                            const id = parent.dataset.id;
+                            const block = blocks.find(b => b.id === id);
+                            if (block && block.type === 'text') {
+                                block.content.text = e.target.innerText;
+                                updateStatus();
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Обработчики перемещения
+            function onBlockMouseDown(e) {
+                if (e.target.classList.contains('resize-handle')) {
+                    startResize(e);
+                    return;
+                }
+                
+                const block = e.target.closest('.composite-block');
+                if (!block) return;
+                
+                const id = block.dataset.id;
+                const blockData = blocks.find(b => b.id === id);
+                if (!blockData) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                dragActive = true;
+                dragBlockId = id;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                dragStartLeft = blockData.styles.left;
+                dragStartTop = blockData.styles.top;
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+            
+            function onMouseMove(e) {
+                if (dragActive && dragBlockId) {
+                    const dx = e.clientX - dragStartX;
+                    const dy = e.clientY - dragStartY;
+                    const block = blocks.find(b => b.id === dragBlockId);
+                    if (block) {
+                        block.styles.left = dragStartLeft + dx;
+                        block.styles.top = dragStartTop + dy;
+                        render();
+                        updateStatus();
+                    }
+                }
+                
+                if (resizeActive && resizeBlockId) {
+                    const dx = e.clientX - resizeStartX;
+                    const dy = e.clientY - resizeStartY;
+                    const block = blocks.find(b => b.id === resizeBlockId);
+                    if (block) {
+                        let newWidth = resizeStartWidth;
+                        let newHeight = resizeStartHeight;
+                        let newLeft = resizeStartLeft;
+                        let newTop = resizeStartTop;
+                        
+                        if (resizeCorner.includes('e')) newWidth = Math.max(20, resizeStartWidth + dx);
+                        if (resizeCorner.includes('w')) {
+                            newWidth = Math.max(20, resizeStartWidth - dx);
+                            newLeft = resizeStartLeft + dx;
+                        }
+                        if (resizeCorner.includes('s')) newHeight = Math.max(20, resizeStartHeight + dy);
+                        if (resizeCorner.includes('n')) {
+                            newHeight = Math.max(20, resizeStartHeight - dy);
+                            newTop = resizeStartTop + dy;
+                        }
+                        
+                        if (resizeShift) {
+                            const ratio = resizeStartWidth / resizeStartHeight;
+                            if (resizeCorner.includes('e') || resizeCorner.includes('w')) {
+                                newHeight = newWidth / ratio;
+                                if (resizeCorner.includes('n')) newTop = resizeStartTop + (resizeStartHeight - newHeight);
+                            } else {
+                                newWidth = newHeight * ratio;
+                                if (resizeCorner.includes('w')) newLeft = resizeStartLeft + (resizeStartWidth - newWidth);
+                            }
+                        }
+                        
+                        block.styles.width = newWidth;
+                        block.styles.height = newHeight;
+                        if (resizeCorner.includes('w')) block.styles.left = newLeft;
+                        if (resizeCorner.includes('n')) block.styles.top = newTop;
+                        render();
+                        updateProps();
+                        updateStatus();
+                    }
+                }
+            }
+            
+            function onMouseUp() {
+                dragActive = false;
+                resizeActive = false;
+                dragBlockId = null;
+                resizeBlockId = null;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+            
+            function startResize(e) {
+                const block = e.target.closest('.composite-block');
+                if (!block) return;
+                
+                const id = block.dataset.id;
+                const blockData = blocks.find(b => b.id === id);
+                if (!blockData) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                resizeActive = true;
+                resizeBlockId = id;
+                resizeCorner = e.target.classList[1];
+                resizeStartX = e.clientX;
+                resizeStartY = e.clientY;
+                resizeStartWidth = blockData.styles.width;
+                resizeStartHeight = blockData.styles.height;
+                resizeStartLeft = blockData.styles.left;
+                resizeStartTop = blockData.styles.top;
+                resizeShift = e.shiftKey;
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+            
+            // Панель слоёв
+            function updateLayers() {
+                if (!layersList) return;
+                let html = '';
+                for (let i = blocks.length - 1; i >= 0; i--) {
+                    const b = blocks[i];
+                    const isSelected = (selectedId === b.id);
+                    let icon = b.type === 'shape' ? 'fa-square' : (b.type === 'text' ? 'fa-font' : 'fa-image');
+                    html += `<div class="layer-item ${isSelected ? 'selected' : ''}" data-id="${b.id}">
+                                <i class="fas ${icon}"></i>
+                                <span style="flex:1;">${b.type}</span>
+                                <span class="delete-layer" data-id="${b.id}">🗑</span>
+                            </div>`;
+                }
+                layersList.innerHTML = html || '<div style="padding:20px; text-align:center;">Нет элементов</div>';
+                
+                document.querySelectorAll('.layer-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('delete-layer')) return;
+                        selectedId = el.dataset.id;
+                        render();
+                        updateLayers();
+                        updateProps();
+                        updateStatus();
+                    });
+                });
+                document.querySelectorAll('.delete-layer').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const id = btn.dataset.id;
+                        blocks = blocks.filter(b => b.id !== id);
+                        if (selectedId === id) selectedId = null;
+                        render();
+                        updateLayers();
+                        updateProps();
+                        updateStatus();
+                    });
+                });
+            }
+            
+            // Панель свойств
+            function updateProps() {
+                if (!propsPanel) return;
+                if (!selectedId) {
+                    propsPanel.innerHTML = '<div style="padding:20px; text-align:center;">Выберите элемент</div>';
+                    return;
+                }
+                const block = blocks.find(b => b.id === selectedId);
+                if (!block) return;
+                const s = block.styles;
+                
+                let html = `<div class="prop-group"><label>X</label><input type="number" id="propX" value="${s.left}"></div>
+                           <div class="prop-group"><label>Y</label><input type="number" id="propY" value="${s.top}"></div>
+                           <div class="prop-group"><label>Ширина</label><input type="number" id="propW" value="${s.width}"></div>
+                           <div class="prop-group"><label>Высота</label><input type="number" id="propH" value="${s.height}"></div>
+                           <div class="prop-group"><label>Поворот</label><input type="number" id="propRotate" value="${s.rotate || 0}"></div>
+                           <button id="applyProps" style="width:100%; padding:8px; background:#8b5cf6; border:none; border-radius:6px; color:white; cursor:pointer;">Применить</button>`;
+                
+                if (block.type === 'shape') {
+                    html += `<div class="prop-group" style="margin-top:12px;"><label>Цвет</label><input type="color" id="propColor" value="${block.content.color}"></div>`;
+                } else if (block.type === 'text') {
+                    html += `<div class="prop-group" style="margin-top:12px;"><label>Текст</label><textarea id="propText" rows="3" style="width:100%; padding:6px; background:#1e1e2e; border:1px solid #2a2a3e; border-radius:6px; color:#fff;">${escapeHtml(block.content.text)}</textarea></div>
+                           <div class="prop-group"><label>Размер шрифта</label><input type="number" id="propFontSize" value="${s.fontSize || 16}"></div>
+                           <div class="prop-group"><label>Цвет</label><input type="color" id="propTextColor" value="${s.color || '#ffffff'}"></div>`;
+                } else if (block.type === 'image') {
+                    html += `<div class="prop-group" style="margin-top:12px;"><label>URL</label><input type="text" id="propImageUrl" value="${escapeHtml(block.content.url)}"></div>`;
+                }
+                
+                propsPanel.innerHTML = html;
+                
+                document.getElementById('applyProps')?.addEventListener('click', () => {
+                    s.left = parseInt(document.getElementById('propX')?.value) || 0;
+                    s.top = parseInt(document.getElementById('propY')?.value) || 0;
+                    s.width = parseInt(document.getElementById('propW')?.value) || 80;
+                    s.height = parseInt(document.getElementById('propH')?.value) || 80;
+                    s.rotate = parseInt(document.getElementById('propRotate')?.value) || 0;
+                    
+                    if (block.type === 'shape') {
+                        block.content.color = document.getElementById('propColor')?.value || '#8b5cf6';
+                    } else if (block.type === 'text') {
+                        block.content.text = document.getElementById('propText')?.value || '';
+                        s.fontSize = parseInt(document.getElementById('propFontSize')?.value) || 16;
+                        s.color = document.getElementById('propTextColor')?.value;
+                    } else if (block.type === 'image') {
+                        block.content.url = document.getElementById('propImageUrl')?.value;
+                    }
+                    render();
+                    updateStatus();
+                });
+            }
+            
+            // Сетка
+            function applyGrid() {
+                if (!canvas) return;
+                canvas.style.backgroundImage = `linear-gradient(#8b5cf6 1px, transparent 1px), linear-gradient(90deg, #8b5cf6 1px, transparent 1px)`;
+                canvas.style.backgroundSize = `20px 20px`;
+            }
+            
+            function removeGrid() {
+                if (!canvas) return;
+                canvas.style.backgroundImage = 'none';
+            }
+            
+            function toggleGrid() {
+                showGrid = !showGrid;
+                if (showGrid) applyGrid();
+                else removeGrid();
+            }
+            
+            // Зум
+            function changeZoom(delta) {
+                zoom = Math.min(4, Math.max(0.2, zoom + delta));
+                if (canvas) canvas.style.transform = `scale(${zoom})`;
+                if (zoomSpan) zoomSpan.innerText = Math.round(zoom * 100) + '%';
+            }
+            
+            function resetZoom() {
+                zoom = 1;
+                if (canvas) canvas.style.transform = `scale(1)`;
+                if (zoomSpan) zoomSpan.innerText = '100%';
+            }
+            
+            // Сохранение шаблона
+            function saveTemplate() {
+                if (!blocks.length) { alert('Нет блоков для сохранения'); return; }
+                const name = prompt('Название шаблона:', 'Мой блок');
+                if (name) {
+                    if (!window.pageData) window.pageData = { templates: [] };
+                    if (!window.pageData.templates) window.pageData.templates = [];
+                    window.pageData.templates.push({
+                        id: 'template_' + Date.now(),
+                        name: name,
+                        blocks: JSON.parse(JSON.stringify(blocks)),
+                        isComposite: true
+                    });
+                    alert('✅ Шаблон сохранён!');
+                }
+            }
+            
+            // Открытие/закрытие
+            function openModal() {
+                if (modal) {
+                    modal.style.display = 'flex';
+                    render();
+                    updateLayers();
+                    updateStatus();
+                    console.log('Конструктор открыт');
+                }
+            }
+            
+            function closeModal() {
+                if (modal) modal.style.display = 'none';
+            }
+            
+            // Инициализация
+            function init() {
+                if (!canvas) {
+                    console.error('Canvas not found');
+                    return;
+                }
+                
+                canvas.style.backgroundColor = '#1e1e2e';
+                canvas.style.minWidth = '1200px';
+                canvas.style.minHeight = '800px';
+                canvas.style.position = 'relative';
+                
+                if (wrapper) {
+                    wrapper.style.overflow = 'auto';
+                }
+                
+                // Кнопки модалки
+                document.getElementById('closeCompositeModalBtn')?.addEventListener('click', closeModal);
+                document.getElementById('cancelCompositeBtn')?.addEventListener('click', closeModal);
+                document.getElementById('saveCompositeBtn')?.addEventListener('click', saveTemplate);
+                document.getElementById('compositeZoomIn')?.addEventListener('click', () => changeZoom(0.1));
+                document.getElementById('compositeZoomOut')?.addEventListener('click', () => changeZoom(-0.1));
+                document.getElementById('compositeZoomReset')?.addEventListener('click', resetZoom);
+                document.getElementById('compositeGridToggle')?.addEventListener('click', toggleGrid);
+                
+                // Кнопки добавления
+                document.querySelectorAll('#compositeShapesGrid .shape-btn').forEach(btn => {
+                    btn.addEventListener('click', () => addShape(btn.dataset.shape));
+                });
+                document.getElementById('compositeAddTextBtn')?.addEventListener('click', addText);
+                document.getElementById('compositeAddImageBtn')?.addEventListener('click', addImage);
+                
+                // Вкладки
+                document.querySelectorAll('.composite-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.dataset.tab;
+                        document.querySelectorAll('.composite-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        document.querySelectorAll('.composite-tab-content').forEach(c => c.classList.remove('active'));
+                        document.querySelector(`.composite-tab-content[data-tab="${tabName}"]`).classList.add('active');
+                    });
+                });
+                
+                // Тестовые кнопки
+                document.getElementById('testOpenBtn')?.addEventListener('click', openModal);
+                document.getElementById('testAddSquareBtn')?.addEventListener('click', () => addShape('square'));
+                document.getElementById('testAddTextBtn')?.addEventListener('click', addText);
+                document.getElementById('testAddImageBtn')?.addEventListener('click', addImage);
+                document.getElementById('testClearBtn')?.addEventListener('click', clearAll);
+                
+                if (showGrid) applyGrid();
+                
+                console.log('✅ Конструктор полностью загружен');
+                updateStatus();
+            }
+            
+            // Запуск
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+            
+            // Экспорт в глобальную область
+            window.TestComposite = {
+                open: openModal,
+                close: closeModal,
+                addShape: addShape,
+                addText: addText,
+                addImage: addImage,
+                getBlocks: () => blocks,
+                clear: clearAll
+            };
+        })();
+    </script>
+</body>
+</html>
